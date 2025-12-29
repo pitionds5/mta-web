@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALL About MTA | Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <style>
+        /* Additional enhanced styles */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .category-card {
+            background: rgba(25, 25, 40, 0.85);
+            border-radius: 16px;
+            padding: 25px;
+            border: 2px solid #404090;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 280px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            opacity: 0.7;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-8px);
+            border-color: #6a11cb;
+            box-shadow: 0 15px 35px rgba(106, 17, 203, 0.25);
+        }
+        
+        .category-card.admin-only {
+            border-color: #ff0080;
+        }
+        
+        .category-card.admin-only::before {
+            background: linear-gradient(90deg, #ff0080, #ff8c00);
+        }
+        
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 34px;
+            background: rgba(106, 17, 203, 0.15);
+            color: #6a11cb;
+            border: 3px solid rgba(106, 17, 203, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .category-card:hover .category-icon {
+            transform: rotate(10deg) scale(1.1);
+            background: rgba(106, 17, 203, 0.25);
+        }
+        
+        .category-icon.admin {
+            background: rgba(255, 0, 128, 0.15);
+            color: #ff0080;
+            border-color: rgba(255, 0, 128, 0.3);
+        }
+        
+        .category-icon.people {
+            background: rgba(37, 117, 252, 0.15);
+            color: #2575fc;
+            border-color: rgba(37, 117, 252, 0.3);
+        }
+        
+        .admin-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .category-card h3 {
+            margin-bottom: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .category-card p {
+            color: #a0a0d0;
+            margin-bottom: 15px;
+            font-size: 15px;
+            line-height: 1.5;
+            min-height: 45px;
+        }
+        
+        .file-count {
+            display: inline-block;
+            background: rgba(64, 64, 144, 0.3);
+            padding: 6px 15px;
+            border-radius: 20px;
+            color: #6a11cb;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid rgba(106, 17, 203, 0.3);
+        }
+        
+        .view-btn {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 2px solid #6a11cb;
+            color: #6a11cb;
+            font-weight: bold;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .view-btn:hover {
+            background: #6a11cb;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Upload form enhancements */
+        .upload-form {
+            max-width: 800px;
+            margin: 30px auto 0;
+            background: rgba(30, 30, 50, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #404090;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        .form-group {
+            flex: 1;
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: #a0a0d0;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 10px;
+            background: rgba(40, 40, 70, 0.5);
+            border: 1px solid #404090;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .upload-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        
+        .cancel-btn {
+            background: transparent;
+            border: 2px solid #ff4757;
+            color: #ff4757;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .cancel-btn:hover {
+            background: rgba(255, 71, 87, 0.1);
+        }
+        
+        .submit-btn {
+            background: linear-gradient(90deg, #2575fc, #6a11cb);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(37, 117, 252, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Browse section enhancements */
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .file-card {
+            background: rgba(25, 25, 40, 0.85);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #404090;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .file-card:hover {
+            transform: translateY(-5px);
+            border-color: #6a11cb;
+            box-shadow: 0 10px 25px rgba(106, 17, 203, 0.15);
+        }
+        
+        .file-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: rgba(106, 17, 203, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #6a11cb;
+            margin-bottom: 15px;
+        }
+        
+        .file-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .file-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: #a0a0d0;
+            font-size: 13px;
+            align-items: center;
+        }
+        
+        .file-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .category-badge.mods { background: rgba(255, 0, 128, 0.15); color: #ff0080; border: 1px solid rgba(255, 0, 128, 0.3); }
+        .category-badge.scripts { background: rgba(106, 17, 203, 0.15); color: #6a11cb; border: 1px solid rgba(106, 17, 203, 0.3); }
+        .category-badge.hud { background: rgba(0, 184, 148, 0.15); color: #00b894; border: 1px solid rgba(0, 184, 148, 0.3); }
+        .category-badge.backups { background: rgba(253, 203, 110, 0.15); color: #fdcb6e; border: 1px solid rgba(253, 203, 110, 0.3); }
+        .category-badge.maps { background: rgba(116, 185, 255, 0.15); color: #74b9ff; border: 1px solid rgba(116, 185, 255, 0.3); }
+        .category-badge.people { background: rgba(85, 239, 196, 0.15); color: #55efc4; border: 1px solid rgba(85, 239, 196, 0.3); }
+        
+        .file-description {
+            color: #b0b0e0;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        
+        .file-version {
+            background: rgba(64, 64, 144, 0.3);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #a0a0d0;
+            display: inline-block;
+            margin-bottom: 15px;
+            border: 1px solid #404090;
+        }
+        
+        .file-preview {
+            margin: 15px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            max-height: 150px;
+        }
+        
+        .preview-img {
+            width: 100%;
+            height: auto;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #404090;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+        
+        .favorite-btn {
+            width: 40px;
+            background: rgba(255, 215, 0, 0.1) !important;
+            color: #ffd700 !important;
+            border: 1px solid #ffd700 !important;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .favorite-btn:hover {
+            background: rgba(255, 215, 0, 0.2) !important;
+            transform: scale(1.1);
+        }
+        
+        .download-btn {
+            flex: 1;
+            background: linear-gradient(90deg, #2575fc, #6a11cb);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.3);
+        }
+        
+        .delete-btn {
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 71, 87, 0.2);
+            color: #ff4757;
+            border: 1px solid #ff4757;
+        }
+        
+        .delete-btn:hover {
+            background: rgba(255, 71, 87, 0.3);
+        }
+        
+        /* Loading animations */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #6a11cb;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-files {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0d0;
+        }
+        
+        .loading-files .loading {
+            margin: 0 auto 15px;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0d0;
+        }
+        
+        .no-results h3 {
+            color: white;
+            margin-bottom: 10px;
+        }
+        
+        .browse-stats {
+            background: rgba(30, 30, 50, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Toast notification */
+        .toast {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            z-index: 10000;
+            animation: slideIn 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            max-width: 400px;
+        }
+        
+        .toast.success {
+            background: linear-gradient(90deg, #00b09b, #96c93d);
+        }
+        
+        .toast.error {
+            background: linear-gradient(90deg, #ff416c, #ff4b2b);
+        }
+        
+        .toast.info {
+            background: linear-gradient(90deg, #2575fc, #6a11cb);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+        
+        /* Category animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .category-card {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        .category-card:nth-child(1) { animation-delay: 0.1s; }
+        .category-card:nth-child(2) { animation-delay: 0.2s; }
+        .category-card:nth-child(3) { animation-delay: 0.3s; }
+        .category-card:nth-child(4) { animation-delay: 0.4s; }
+        .category-card:nth-child(5) { animation-delay: 0.5s; }
+        .category-card:nth-child(6) { animation-delay: 0.6s; }
+        
+        /* Recent files section */
+        .recent-files {
+            background: rgba(30, 30, 50, 0.5);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #404090;
+            margin-top: 40px;
+        }
+        
+        .recent-files h3 {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Upload status */
+        #uploadStatus {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(106, 17, 203, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(106, 17, 203, 0.3);
+            display: none;
+        }
+        
+        .loading-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6a11cb;
+        }
+        
+        /* Section subtitle */
+        .section-subtitle {
+            color: #a0a0d0;
+            margin-bottom: 30px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        
+        /* Favorites section styling */
+        .favorites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #404090;
+        }
+        
+        .favorites-stats {
+            background: linear-gradient(90deg, rgba(255,215,0,0.1), rgba(255,193,7,0.1));
+            border: 1px solid rgba(255,215,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* AI Assistant Styles */
+        .ai-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .ai-main-container {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        .ai-input-card {
+            transition: all 0.3s;
+        }
+        
+        .ai-input-card:hover {
+            box-shadow: 0 10px 30px rgba(106, 17, 203, 0.2);
+        }
+        
+        .ai-output-area {
+            background: rgba(25,25,40,0.95);
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #404090;
+            margin-top: 20px;
+        }
+        
+        .ai-info-card {
+            transition: all 0.3s;
+        }
+        
+        .ai-info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .ai-loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .ai-loading .loading {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 20px;
+            border-width: 4px;
+        }
+        
+        .ai-code-result {
+            background: #1a1a2e;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #404090;
+        }
+        
+        .ai-code-header {
+            background: #252545;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #404090;
+        }
+        
+        .ai-code-content {
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .ai-code-content pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #e0e0ff;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .categories-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .categories-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .category-card {
+                min-height: 250px;
+                padding: 20px;
+            }
+            
+            .files-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .file-card {
+                padding: 15px;
+            }
+            
+            .upload-form {
+                padding: 20px;
+            }
+            
+            .ai-code-content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="assets/logo.png" alt="Logo" class="sidebar-logo">
+            <h2>ALL About MTA</h2>
+        </div>
+        
+        <div class="user-info">
+            <img id="userAvatar" src="assets/avatar.png" alt="User Avatar">
+            <h3 id="userName">Loading...</h3>
+            <span id="userRole" class="role-badge user">User</span>
+            <button id="logoutBtn" class="btn logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+        
+        <nav class="nav-menu">
+            <a href="#" class="nav-item active" data-section="home">
+                <i class="fas fa-home"></i> Home
+            </a>
+            <a href="#" class="nav-item" data-section="browse">
+                <i class="fas fa-search"></i> Browse Files
+            </a>
+            <a href="#" class="nav-item" data-section="upload">
+                <i class="fas fa-upload"></i> Upload
+            </a>
+            <a href="#" class="nav-item" data-section="myfiles">
+                <i class="fas fa-folder"></i> My Files
+            </a>
+            <a href="#" class="nav-item" data-section="favorites">
+                <i class="fas fa-star"></i> Favorites
+            </a>
+            <a href="#" class="nav-item" data-section="aiassistant">
+                <i class="fas fa-robot"></i> AI Assistant
+            </a>
+            <a href="#" class="nav-item admin-only" data-section="admin" style="display:none;">
+                <i class="fas fa-crown"></i> Admin Panel
+            </a>
+        </nav>
+        
+        <div class="stats-sidebar">
+            <div class="stat">
+                <i class="fas fa-users"></i>
+                <div>
+                    <h4 id="liveUsers">0</h4>
+                    <small>Live Users</small>
+                </div>
+            </div>
+            <div class="stat">
+                <i class="fas fa-database"></i>
+                <div>
+                    <h4 id="totalFiles">0</h4>
+                    <small>Total Files</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 id="pageTitle">Dashboard</h1>
+            </div>
+            <div class="header-right">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search resources...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Content Sections -->
+        <div class="content-wrapper">
+            <!-- Home Section -->
+            <section id="homeSection" class="content-section active">
+                <h2 class="section-title">📦 MTA:SA Resource Categories</h2>
+                <p class="section-subtitle">
+                    Everyone can view all categories. Only admins can upload to Mods, Scripts, HUD, Backups, and Maps.
+                    Everyone can upload to <strong style="color: #55efc4;">People's Uploads</strong>.
+                </p>
+                
+                <div class="categories-grid">
+                    <!-- All categories visible to everyone -->
+                    <div class="category-card" data-category="mods">
+                        <div class="admin-badge">Admin Upload Only</div>
+                        <div class="category-icon admin">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3>Mods</h3>
+                        <p>Game modifications, vehicle mods, weapon packs, client-side mods</p>
+                        <span class="file-count" id="modsCount">0 files</span>
+                        <button class="btn view-btn" data-category="mods">Browse Mods</button>
+                    </div>
+                    
+                    <div class="category-card" data-category="scripts">
+                        <div class="admin-badge">Admin Upload Only</div>
+                        <div class="category-icon admin">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <h3>Scripts</h3>
+                        <p>Lua scripts for servers, gamemodes, systems, utilities, tools</p>
+                        <span class="file-count" id="scriptsCount">0 files</span>
+                        <button class="btn view-btn" data-category="scripts">Browse Scripts</button>
+                    </div>
+                    
+                    <div class="category-card" data-category="hud">
+                        <div class="admin-badge">Admin Upload Only</div>
+                        <div class="category-icon admin">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <h3>HUD</h3>
+                        <p>Interface modifications, HUD designs, DX elements, radar skins</p>
+                        <span class="file-count" id="hudCount">0 files</span>
+                        <button class="btn view-btn" data-category="hud">Browse HUD</button>
+                    </div>
+                    
+                    <div class="category-card" data-category="backups">
+                        <div class="admin-badge">Admin Upload Only</div>
+                        <div class="category-icon admin">
+                            <i class="fas fa-archive"></i>
+                        </div>
+                        <h3>Backups</h3>
+                        <p>Server backups, save files, database backups, configurations</p>
+                        <span class="file-count" id="backupsCount">0 files</span>
+                        <button class="btn view-btn" data-category="backups">Browse Backups</button>
+                    </div>
+                    
+                    <div class="category-card" data-category="maps">
+                        <div class="admin-badge">Admin Upload Only</div>
+                        <div class="category-icon admin">
+                            <i class="fas fa-map"></i>
+                        </div>
+                        <h3>Maps</h3>
+                        <p>Custom maps, race maps, DM arenas, stunt maps, freeroam maps</p>
+                        <span class="file-count" id="mapsCount">0 files</span>
+                        <button class="btn view-btn" data-category="maps">Browse Maps</button>
+                    </div>
+                    
+                    <div class="category-card" data-category="people">
+                        <div class="category-icon people">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>People's Uploads</h3>
+                        <p>Everyone can upload here! Share your resources, tools, tutorials</p>
+                        <span class="file-count" id="peopleCount">0 files</span>
+                        <button class="btn view-btn" data-category="people">Browse Uploads</button>
+                    </div>
+                </div>
+                
+                <!-- Recent Files -->
+                <div class="recent-files">
+                    <h3><i class="fas fa-clock"></i> Recently Uploaded Resources</h3>
+                    <div id="recentFilesList" class="files-list">
+                        <p class="no-files">No files uploaded yet. Be the first to upload!</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Upload Section -->
+            <section id="uploadSection" class="content-section">
+                <h2 class="section-title">⬆ Upload Resource</h2>
+                <p class="section-subtitle">
+                    Upload files by providing download links. Supported: MediaFire, Google Drive, Dropbox, MEGA, GitHub, direct links.
+                </p>
+                
+                <div class="upload-container">
+                    <div class="upload-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fileName"><i class="fas fa-heading"></i> Resource Name *</label>
+                                <input type="text" id="fileName" placeholder="e.g., Awesome Race Script v1.2" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="fileCategory"><i class="fas fa-folder"></i> Category *</label>
+                                <select id="fileCategory">
+                                    <option value="people">People's Uploads (Everyone)</option>
+                                    <option value="mods">Mods (Admin Only)</option>
+                                    <option value="scripts">Scripts (Admin Only)</option>
+                                    <option value="hud">HUD (Admin Only)</option>
+                                    <option value="backups">Backups (Admin Only)</option>
+                                    <option value="maps">Maps (Admin Only)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="fileDownloadUrl"><i class="fas fa-link"></i> Download URL *</label>
+                            <input type="url" id="fileDownloadUrl" placeholder="https://mediafire.com/... or https://drive.google.com/..." required>
+                            <small style="color: #a0a0d0; margin-top: 5px; display: block;">
+                                Provide a direct download link or cloud storage link
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                    <label for="fileImageUrl"><i class="fas fa-image"></i> Preview Image URL *</label>
+                    <input type="url" id="fileImageUrl" placeholder="https://imgur.com/... or direct image link" required>
+                    <small style="color: #a0a0d0; margin-top: 5px; display: block;">
+                        Required: Show a preview of your resource (screenshot, logo, etc.)
+                    </small>
+                </div>
+                        
+                        <div class="form-group">
+                    <label for="fileDescription"><i class="fas fa-align-left"></i> Description (Optional)</label>
+                    <textarea id="fileDescription" rows="5" placeholder="Describe your resource... (Optional)"></textarea>
+                </div>
+                        
+                        <div class="form-group">
+                            <label for="fileVersion"><i class="fas fa-code-branch"></i> Version (Optional)</label>
+                            <input type="text" id="fileVersion" placeholder="e.g., v1.0, 2.3, beta">
+                        </div>
+                        
+                        <div id="uploadStatus">
+                            <div class="loading-status">
+                                <div class="loading"></div>
+                                <span>Publishing your resource...</span>
+                            </div>
+                        </div>
+
+                        <div class="upload-actions">
+                            <button class="btn cancel-btn" id="cancelUpload">
+                                <i class="fas fa-times"></i> Clear Form
+                            </button>
+                            <button class="btn submit-btn" id="submitUpload">
+                                <i class="fas fa-cloud-upload-alt"></i> Publish Resource
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Browse Section -->
+            <section id="browseSection" class="content-section">
+    <h2 class="section-title">🔍 Browse All Resources</h2>
+    
+    <div class="browse-header">
+        <!-- Category Tabs -->
+        <div class="category-tabs" style="margin-bottom: 20px;">
+            <div class="tabs-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                <button class="category-tab active" data-category="all">
+                    <i class="fas fa-th"></i> All Categories
+                </button>
+                <button class="category-tab" data-category="mods">
+                    <i class="fas fa-tools"></i> Mods
+                </button>
+                <button class="category-tab" data-category="scripts">
+                    <i class="fas fa-code"></i> Scripts
+                </button>
+                <button class="category-tab" data-category="hud">
+                    <i class="fas fa-layer-group"></i> HUD
+                </button>
+                <button class="category-tab" data-category="backups">
+                    <i class="fas fa-archive"></i> Backups
+                </button>
+                <button class="category-tab" data-category="maps">
+                    <i class="fas fa-map"></i> Maps
+                </button>
+                <button class="category-tab" data-category="people">
+                    <i class="fas fa-users"></i> People's Uploads
+                </button>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="tabs-stats" style="display: flex; gap: 15px; font-size: 13px; color: #a0a0d0; flex-wrap: wrap;">
+                <span><i class="fas fa-file-alt"></i> Total: <strong id="browseTotalCount">0</strong> files</span>
+                <span><i class="fas fa-eye"></i> Viewing: <strong id="browseViewingCount">0</strong> files</span>
+                <span><i class="fas fa-filter"></i> Filter: <strong id="currentFilter">All</strong></span>
+            </div>
+        </div>
+        
+        <!-- Search and Sort -->
+        <div class="browse-controls" style="display: flex; gap: 15px; margin-top: 15px; align-items: center;">
+            <div class="search-box" style="flex: 1;">
+                <input type="text" id="browseSearchInput" placeholder="Search files by name or description...">
+                <i class="fas fa-search"></i>
+            </div>
+            
+            <div class="sort-controls" style="display: flex; gap: 10px;">
+                <select id="sortBy" style="padding: 10px 15px; background: rgba(40,40,70,0.5); border: 1px solid #404090; color: white; border-radius: 8px; font-size: 14px;">
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                </select>
+                
+                <button id="clearFilters" class="btn" style="padding: 10px 15px; background: rgba(106,17,203,0.2); border: 1px solid #6a11cb; color: #6a11cb; border-radius: 8px; font-size: 14px;">
+                    <i class="fas fa-redo"></i> Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Area -->
+    <div id="browseResults" class="browse-results">
+        <div class="loading-files">
+            <div class="loading"></div>
+            <p>Loading resources...</p>
+        </div>
+    </div>
+</section>
+            
+            <!-- My Files Section -->
+            <section id="myfilesSection" class="content-section">
+                <h2 class="section-title">📁 My Uploads</h2>
+                <div id="myFilesList" class="files-list">
+                    <p class="no-files">You haven't uploaded any files yet.</p>
+                </div>
+            </section>
+            
+            <!-- Favorites Section -->
+            <section id="favoritesSection" class="content-section">
+                <div class="favorites-header">
+                    <h2 class="section-title">⭐ My Favorites</h2>
+                    <div class="favorites-count" style="color: #ffd700; font-weight: bold;">
+                        <i class="fas fa-star"></i> <span id="favoritesCount">0</span> items
+                    </div>
+                </div>
+                
+                <div class="favorites-stats">
+                    <p style="color: #ffd700; margin-bottom: 10px;">
+                        <i class="fas fa-info-circle"></i> Your favorite resources are saved locally and will persist across sessions.
+                    </p>
+                    <div style="display: flex; gap: 20px; color: #a0a0d0; font-size: 14px;">
+                        <span><i class="fas fa-sync-alt"></i> Auto-saved to browser</span>
+                        <span><i class="fas fa-trash-alt"></i> Click star to remove</span>
+                    </div>
+                </div>
+                
+                <div id="favoritesList" class="files-list">
+                    <div class="loading-files">
+                        <div class="loading"></div>
+                        <p>Loading your favorites...</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- AI Assistant Section -->
+<section id="aiassistantSection" class="content-section">
+    <div class="ai-header" style="text-align: center; margin-bottom: 30px;">
+        <h2 class="section-title">
+            <i class="fas fa-robot"></i> <span id="gameTitle">MTA:SA Lua Script Generator</span>
+        </h2>
+        <p class="section-subtitle">
+            Describe what you need. AI will generate complete, working code instantly.
+        </p>
+    </div>
+    
+    <!-- Game Selection -->
+    <div class="game-selector">
+        <button class="game-select-btn active" data-game="mta">
+            <i class="fas fa-gamepad"></i> MTA:SA Lua
+        </button>
+        <button class="game-select-btn" data-game="samp">
+            <i class="fas fa-server"></i> SA-MP Pawn
+        </button>
+    </div>
+    
+    <div class="ai-main-container">
+        <!-- Input Card -->
+        <div class="ai-input-card" style="background: rgba(30,30,50,0.7); padding: 25px; border-radius: 15px; border: 1px solid #404090;">
+            <h3 style="color: #6a11cb; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-code" id="gameIcon"></i> Describe Your Script Idea
+            </h3>
+            
+            <!-- Examples -->
+            <div style="background: rgba(106,17,203,0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="color: #a0a0d0; font-size: 14px; margin-bottom: 10px;">
+                    <i class="fas fa-lightbulb"></i> <strong>Quick Examples:</strong>
+                </p>
+                <div id="aiExamples">
+                    <div class="example-item" onclick="fillExample(this)">
+                        <span class="example-badge">MTA</span>
+                        <span>/heal command for admins</span>
+                    </div>
+                    <div class="example-item" onclick="fillExample(this)">
+                        <span class="example-badge">MTA</span>
+                        <span>Car dealership system with GUI</span>
+                    </div>
+                    <div class="example-item" onclick="fillExample(this)">
+                        <span class="example-badge">MTA</span>
+                        <span>Login/register with MySQL</span>
+                    </div>
+                </div>
+            </div>
+            
+            <textarea 
+                id="aiDescription" 
+                placeholder="Describe exactly what you want the script to do. Be specific about commands, features, and who can use it..."
+                rows="5"
+                style="width: 100%; padding: 15px; background: rgba(40,40,70,0.5); border: 1px solid #404090; color: white; border-radius: 10px; font-size: 14px; resize: vertical; margin-bottom: 20px; font-family: 'Segoe UI', sans-serif;">
+            </textarea>
+            
+            <button onclick="generateMTAscript()" style="background: linear-gradient(90deg, #6a11cb, #2575fc); color: white; padding: 15px 40px; font-size: 16px; font-weight: bold; border-radius: 10px; width: 100%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                <i class="fas fa-magic"></i> Generate Code
+            </button>
+            
+            <div style="color: #a0a0d0; font-size: 12px; text-align: center; margin-top: 15px; display: flex; justify-content: center; gap: 20px;">
+                <span><i class="fas fa-bolt"></i> Instant generation</span>
+                <span><i class="fas fa-user-tie"></i> By Louay Zaid</span>
+                <span><i class="fas fa-crown"></i> Powered By Louay</span>
+            </div>
+        </div>
+        
+        <!-- Output Area -->
+        <div id="aiCodeOutput" class="ai-output-area" style="margin-top: 25px; display: none;">
+            <!-- Generated content appears here -->
+        </div>
+    </div>
+</section>
+
+<!-- Admin Panel Section -->
+<section id="adminSection" class="content-section">
+    <h2 class="section-title">👑 Admin Control Panel</h2>
+    
+    <!-- Social Links -->
+    <div class="social-links" style="display: flex; gap: 15px; margin-bottom: 25px; justify-content: center;">
+        <a href="https://discord.gg/njpXAkqjmP" target="_blank" class="social-btn discord-btn" style="display: inline-flex; align-items: center; gap: 8px; background: #5865F2; color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold; transition: all 0.3s;">
+            <i class="fab fa-discord"></i> Join Discord
+        </a>
+        <a href="https://www.instagram.com/louay.za/" target="_blank" class="social-btn instagram-btn" style="display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D); color: white; padding: 10px 20px; border-radius: 10px; text-decoration: none; font-weight: bold; transition: all 0.3s;">
+            <i class="fab fa-instagram"></i> Follow Instagram
+        </a>
+    </div>
+    
+    <div class="admin-grid">
+        <!-- User Management -->
+        <div class="admin-card">
+            <h3><i class="fas fa-users-cog"></i> User Role Management</h3>
+            <p class="admin-description">Promote users to Admin or Super Admin roles</p>
+            
+            <div class="search-users" style="margin-bottom: 15px;">
+                <input type="text" id="searchUsers" placeholder="Search users by name or email..." 
+                       style="width: 100%; padding: 12px 15px; background: rgba(40,40,70,0.5); border: 1px solid #404090; color: white; border-radius: 8px; font-size: 14px;">
+            </div>
+            
+            <div class="admin-users-list" id="adminUsersList" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <div class="loading-small">
+                    <div class="loading"></div>
+                    <p>Loading users...</p>
+                </div>
+            </div>
+            
+            <div class="stats-mini" style="margin-top: 15px; padding: 10px; background: rgba(40,40,70,0.3); border-radius: 8px; font-size: 13px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Total Users: <strong id="totalUsersMini">0</strong></span>
+                    <span>Admins: <strong id="adminCountMini">0</strong></span>
+                    <span>Super Admins: <strong id="superAdminCountMini">0</strong></span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add Admin Panel -->
+        <div class="admin-card">
+            <h3><i class="fas fa-user-plus"></i> Assign Admin Roles</h3>
+            <p class="admin-description">Enter user email to assign Admin or Super Admin role</p>
+            
+            <div class="admin-add-form" style="margin-top: 20px;">
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label style="color: #a0a0d0; font-size: 14px; margin-bottom: 5px; display: block;">User Email</label>
+                    <input type="email" id="addAdminEmail" placeholder="user@example.com" 
+                           style="width: 100%; padding: 12px 15px; background: rgba(40,40,70,0.5); border: 1px solid #404090; color: white; border-radius: 8px; font-size: 14px;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label style="color: #a0a0d0; font-size: 14px; margin-bottom: 5px; display: block;">Select Role</label>
+                    <div class="role-options" style="display: flex; gap: 10px;">
+                        <label class="role-option" style="flex: 1; text-align: center; padding: 12px; background: rgba(106,17,203,0.1); border: 2px solid #6a11cb; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                            <input type="radio" name="adminRole" value="admin" checked style="display: none;">
+                            <div style="color: #6a11cb; font-weight: bold;">Admin</div>
+                            <div style="font-size: 12px; color: #a0a0d0; margin-top: 5px;">Upload anywhere</div>
+                        </label>
+                        <label class="role-option" style="flex: 1; text-align: center; padding: 12px; background: rgba(255,0,128,0.1); border: 2px solid #ff0080; border-radius: 8px; cursor: pointer; transition: all 0.3s;">
+                            <input type="radio" name="adminRole" value="superadmin" style="display: none;">
+                            <div style="color: #ff0080; font-weight: bold;">Super Admin</div>
+                            <div style="font-size: 12px; color: #a0a0d0; margin-top: 5px;">+ Delete any file</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn assign-btn" id="addAdminBtn" 
+                        style="width: 100%; background: linear-gradient(90deg, #6a11cb, #2575fc); padding: 14px; font-size: 16px; font-weight: bold; border-radius: 10px;">
+                    <i class="fas fa-user-shield"></i> Assign Role
+                </button>
+            </div>
+            
+            <div class="note" style="margin-top: 20px; padding: 12px; background: rgba(106,17,203,0.1); border-radius: 8px; font-size: 13px; border-left: 3px solid #6a11cb;">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Note:</strong> Only you (Owner) can assign roles. Super Admins can delete any file but cannot manage users.
+            </div>
+        </div>
+        
+        <!-- Statistics Panel -->
+        <div class="admin-card">
+            <h3><i class="fas fa-chart-bar"></i> Real-Time Statistics</h3>
+            <p class="admin-description">Live data from your platform</p>
+            
+            <div class="stats-grid" style="margin-top: 20px;">
+                <div class="stat-box" style="background: rgba(40,40,70,0.3); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #404090;">
+                    <div style="font-size: 32px; color: #6a11cb; margin-bottom: 10px;">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 style="color: #a0a0d0; margin-bottom: 5px;">Total Users</h4>
+                    <p id="totalUsersStat" style="font-size: 28px; font-weight: bold; color: white;">0</p>
+                </div>
+                
+                <div class="stat-box" style="background: rgba(40,40,70,0.3); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #404090;">
+                    <div style="font-size: 32px; color: #00b894; margin-bottom: 10px;">
+                        <i class="fas fa-file-archive"></i>
+                    </div>
+                    <h4 style="color: #a0a0d0; margin-bottom: 5px;">Total Files</h4>
+                    <p id="totalFilesStat" style="font-size: 28px; font-weight: bold; color: white;">0</p>
+                </div>
+                
+                <div class="stat-box" style="background: rgba(40,40,70,0.3); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #404090;">
+                    <div style="font-size: 32px; color: #ff8c00; margin-bottom: 10px;">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h4 style="color: #a0a0d0; margin-bottom: 5px;">Total Downloads</h4>
+                    <p id="totalDownloadsStat" style="font-size: 28px; font-weight: bold; color: white;">0</p>
+                </div>
+                
+                <div class="stat-box" style="background: rgba(40,40,70,0.3); padding: 20px; border-radius: 10px; text-align: center; border: 1px solid #404090;">
+                    <div style="font-size: 32px; color: #ff4757; margin-bottom: 10px;">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4 style="color: #a0a0d0; margin-bottom: 5px;">Your Role</h4>
+                    <p style="font-size: 20px; font-weight: bold; color: #ff8c00; text-transform: uppercase;">Owner</p>
+                </div>
+            </div>
+            
+            <div class="category-stats" style="margin-top: 20px; padding: 15px; background: rgba(40,40,70,0.2); border-radius: 8px;">
+                <h4 style="color: white; margin-bottom: 10px; font-size: 16px;">Files by Category</h4>
+                <div id="categoryStats" style="font-size: 13px; color: #a0a0d0;">
+                    Loading category statistics...
+                </div>
+            </div>
+        </div>
+        
+        <!-- Super Admin Delete Panel -->
+        <div class="admin-card">
+            <h3><i class="fas fa-trash-alt"></i> Super Admin Delete Panel</h3>
+            <p class="admin-description">Delete any file from the platform (Super Admin+ only)</p>
+            
+            <div class="delete-filters" style="margin: 20px 0; display: flex; gap: 10px;">
+                <select id="deleteCategoryFilter" style="flex: 1; padding: 10px; background: rgba(40,40,70,0.5); border: 1px solid #404090; color: white; border-radius: 8px;">
+                    <option value="all">All Categories</option>
+                    <option value="mods">Mods</option>
+                    <option value="scripts">Scripts</option>
+                    <option value="hud">HUD</option>
+                    <option value="backups">Backups</option>
+                    <option value="maps">Maps</option>
+                    <option value="people">People's Uploads</option>
+                </select>
+                
+                <input type="text" id="deleteSearch" placeholder="Search files..." 
+                       style="flex: 2; padding: 10px; background: rgba(40,40,70,0.5); border: 1px solid #404090; color: white; border-radius: 8px;">
+            </div>
+            
+            <div id="superAdminDeletePanel" style="max-height: 350px; overflow-y: auto; padding-right: 10px;">
+                <div class="loading-small">
+                    <div class="loading"></div>
+                    <p>Loading files for deletion...</p>
+                </div>
+            </div>
+            
+            <div class="delete-stats" style="margin-top: 15px; padding: 10px; background: rgba(255,71,87,0.1); border-radius: 8px; font-size: 13px; border-left: 3px solid #ff4757;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning:</strong> This action permanently deletes files. Only Super Admins and Owner can use this panel.
+            </div>
+        </div>
+    </div>
+</section>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Include AI Assistant -->
+    <script type="module" src="ai-assistant.js"></script>
+    <script type="module" src="dashboard.js"></script>
+    <script>
+        // Inline script for immediate functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Dashboard loaded!");
+            
+            // Clear form button
+            const cancelBtn = document.getElementById('cancelUpload');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function() {
+                    document.getElementById('fileName').value = '';
+                    document.getElementById('fileDownloadUrl').value = '';
+                    document.getElementById('fileImageUrl').value = '';
+                    document.getElementById('fileDescription').value = '';
+                    document.getElementById('fileVersion').value = '';
+                    document.getElementById('uploadStatus').style.display = 'none';
+                });
+            }
+            
+            // Navigation
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    
+                    // Update active nav
+                    navItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show section
+                    document.querySelectorAll('.content-section').forEach(sec => {
+                        sec.classList.remove('active');
+                    });
+                    document.getElementById(section + 'Section').classList.add('active');
+                    
+                    // Update page title
+                    const pageTitle = document.getElementById('pageTitle');
+                    const iconText = this.querySelector('i').nextSibling.textContent.trim();
+                    pageTitle.textContent = iconText;
+                });
+            });
+            
+            // Category buttons
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    
+                    // Switch to browse section
+                    const browseNav = document.querySelector('[data-section="browse"]');
+                    if (browseNav) {
+                        navItems.forEach(i => i.classList.remove('active'));
+                        browseNav.classList.add('active');
+                        
+                        document.querySelectorAll('.content-section').forEach(sec => {
+                            sec.classList.remove('active');
+                        });
+                        document.getElementById('browseSection').classList.add('active');
+                        
+                        // Set page title
+                        document.getElementById('pageTitle').textContent = 'Browse Files';
+                        
+                        // Trigger category filter
+                        if (window.filterByCategory) {
+                            window.filterByCategory(category);
+                        }
+                    }
+                });
+            });
+            
+            // Global showToast function
+            window.showToast = function(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.style.display = 'block';
+                
+                setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 4000);
+            };
+            
+            // Hide upload status by default
+            const uploadStatus = document.getElementById('uploadStatus');
+            if (uploadStatus) {
+                uploadStatus.style.display = 'none';
+            }
+            
+            // Auto-hide toast when clicking elsewhere
+            document.addEventListener('click', function() {
+                const toast = document.getElementById('toast');
+                if (toast && toast.style.display === 'block') {
+                    toast.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

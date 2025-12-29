@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ========== USERS COLLECTION ==========
+    match /users/{userId} {
+      // Anyone authenticated can read users (for display)
+      allow read: if request.auth != null;
+      
+      // Create: User can create their own document on first login
+      allow create: if request.auth != null && request.auth.uid == userId;
+      
+      // Update rules:
+      allow update: if (
+        // Owner can update any user (for role assignments)
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "owner") ||
+        // User can update their own profile (except role field)
+        (request.auth.uid == userId && 
+         !("role" in request.resource.data) &&  // Cannot change own role
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+           "displayName", "username", "photoURL", "lastLogin", "updatedAt"
+         ]))
+      );
+      
+      // Delete: Only owner can delete users
+      allow delete: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "owner";
+    }
+    
+    // ========== UPLOADS COLLECTION ==========
+    match /uploads/{fileId} {
+      // Anyone authenticated can read files
+      allow read: if request.auth != null;
+      
+      // Create: Any authenticated user can upload
+      allow create: if request.auth != null;
+      
+      // Update: Only owner can update download count
+      allow update: if (
+        // User can only update their own file's download count
+        (request.auth.uid == resource.data.uid && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(["downloads"])) ||
+        // Admin/SuperAdmin/Owner can update any file
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["admin", "superadmin", "owner"]
+      );
+      
+      // Delete rules:
+      allow delete: if (
+        // User can delete their own uploads
+        request.auth.uid == resource.data.uid ||
+        // SuperAdmin and Owner can delete any file
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["superadmin", "owner"]
+      );
+    }
+    
+    // ========== GLOBAL ACCESS RULES ==========
+    // Prevent arbitrary collection creation
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
